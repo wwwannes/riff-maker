@@ -1,38 +1,50 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.string,
+#tabs .row{
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+#tabs .item{
+  text-align: center;
+  align-self: center;
+  width: 30px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.fret{
+  width: 150px;
+  height: 45px;
+  border: 1px solid black;
+  text-align: right;
+  align-self: flex-end;
+  padding-right: 5px;
+  padding-top: 5px;
+  position: relative;
+}
+.fret.active{
+  background: grey;
+}
+
+.fret.f3:before,
+.fret.f5:before,
+.fret.f7:before,
+.fret.f9:before,
+.fret.f12:before,
+.fret.f12:after{
+  content: '';
+  display: block;
+  border-radius: 100%;
+  border: 2px solid black;
+  width: 15px;
+  height: 15px;
+  position: absolute;
+  left: calc(50% - 7.5px);
+  top: calc(50% - 7.5px);
+}
+
+.fret.f12:before{
+  top: calc((50% - 7.5px) - 10px);
+}
+.fret.f12:after{
+  top: calc((50% - 7.5px) + 10px);
 }
