@@ -4,18 +4,19 @@ import './App.css';
 
 function App() {
 
+  const $notes_e = ["F","F#","G","G#","A","A#","B","C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C","C#","D","D#"];
+  const $notes_a = ["A#","B","C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C","C#","D","D#","E","F","F#","G","G#"];
+  const $notes_d = ["D#","E","F","F#","G","G#","A","A#","B","C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C","C#"];
+  const $notes_g = ["G#","A","A#","B","C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C","C#","D","D#","E","F","F#"];
+  const $notes_b = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C","C#","D","D#","E","F","F#","G","G#","A","A#"];
+  const strings = [$notes_e,$notes_a,$notes_d,$notes_g,$notes_b,$notes_e];
+
   const totalFrets = 23;
   const totalStrings = 6;
-
-  var $notes_e = ["F","F#","G","G#","A","A#","B","C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C","C#","D","D#"];
-  var $notes_a = ["A#","B","C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C","C#","D","D#","E","F","F#","G","G#"];
-  var $notes_d = ["D#","E","F","F#","G","G#","A","A#","B","C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C","C#"];
-  var $notes_g = ["G#","A","A#","B","C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C","C#","D","D#","E","F","F#"];
-  var $notes_b = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C","C#","D","D#","E","F","F#","G","G#","A","A#"];
-  var strings = [$notes_e,$notes_a,$notes_d,$notes_g,$notes_b,$notes_e];
-
   const $minRiffLength = 4;
   const $maxRiffLength = 9;
+  const $maxFretDifference = 5;
+  const $maxStringDifference = 3;
   const $randomRiffLength = Math.floor((Math.random() * ($maxRiffLength - $minRiffLength)) + $minRiffLength);
   const [generatedRiff, setGeneratedRiff] = useState([]);
 
@@ -23,33 +24,33 @@ function App() {
     var tempRiff = [];
 
     for(var i = 0; i < $randomRiffLength; i++){
-      const maxFret = Math.max.apply(null, tempRiff.map(object => {
-        return object.fret;
-      }));
+      var string;
+      var fret;
 
-      console.log(maxFret);
+      if(tempRiff.length > 0){
+        const $minString = tempRiff[i-1]['string'] - $maxStringDifference < 0 ? 0 : tempRiff[i-1]['string'] - $maxStringDifference;
+        const $maxString = tempRiff[i-1]['string'] + $maxStringDifference;
+        const $minFret = tempRiff[i-1]['fret'] - $maxFretDifference < 1 ? 1 : tempRiff[i-1]['fret'] - $maxFretDifference;
+        const $maxFret = tempRiff[i-1]['fret'] + $maxFretDifference;
 
-      var string = Math.floor(Math.random() * (totalStrings-1)) + 1;
-      var fret = Math.floor(Math.random() * (totalFrets-1)) + 1;
+        string = Math.floor(Math.random() * ($maxString - $minString) + $minString);
+        fret = Math.floor(Math.random() * ($maxFret - $minFret + 1) + $minFret);
+      } else {
+        string = Math.floor(Math.random() * (totalStrings-1)) + 1;
+        fret = Math.floor(Math.random() * (totalFrets-1));
+      }
 
       if(fret < 1 || fret === NaN || fret === undefined){
         fret = 0;
       }
-
-      /* Make sure random frets are closer together */
-      if(string > 1 && fret >= 7){
-        if(strings[string-1][fret-7] === strings[string][fret]){
-          if(string > 1){
-            string = string - 1;
-          } else {
-            string = 0;
-          }
-          if(fret >= 7){
-            fret = fret - 7;
-          } else {
-            fret = 0;
-          }
-        }
+      if(fret > totalFrets){
+        fret = totalFrets;
+      }
+      if(string < 1 || string === NaN || string === undefined){
+        string = 1;
+      }
+      if(string > totalStrings){
+        string = totalStrings;
       }
 
       tempRiff.push({
