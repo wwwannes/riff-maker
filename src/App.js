@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import { useState } from 'react';
 
 import './App.css';
 
@@ -17,24 +17,28 @@ function App() {
   const $minRiffLength = 4;
   const $maxRiffLength = 9;
   const $randomRiffLength = Math.floor((Math.random() * ($maxRiffLength - $minRiffLength)) + $minRiffLength);
-  const [riffPosition, setRiffPosition] = useState([]);
-  const [riffArray, setRiffArray] = useState([]);
-  const [chosenFretPosition, setChosenFretPosition] = useState([]);
+  const [generatedRiff, setGeneratedRiff] = useState([]);
 
   const generateRiff = () => {
-    var defaultRiffPositions = [];
-    var defaultRiffArray = [];
+    var tempRiff = [];
+
     for(var i = 0; i < $randomRiffLength; i++){
+      const maxFret = Math.max.apply(null, tempRiff.map(object => {
+        return object.fret;
+      }));
+
+      console.log(maxFret);
+
       var string = Math.floor(Math.random() * (totalStrings-1)) + 1;
       var fret = Math.floor(Math.random() * (totalFrets-1)) + 1;
 
-      if(fret > 1 || fret === NaN || fret === undefined){
+      if(fret < 1 || fret === NaN || fret === undefined){
         fret = 0;
       }
 
       /* Make sure random frets are closer together */
       if(string > 1 && fret >= 7){
-        if(strings[string-1][fret-7] == strings[string][fret]){
+        if(strings[string-1][fret-7] === strings[string][fret]){
           if(string > 1){
             string = string - 1;
           } else {
@@ -48,15 +52,13 @@ function App() {
         }
       }
 
-      defaultRiffPositions.push([string, fret]);
-      defaultRiffArray.push(fret+strings[string-1][fret-1]);
+      tempRiff.push({
+        string: string,
+        fret: fret,
+        note: strings[string][fret]
+      });
     }
-    setRiffPosition(defaultRiffPositions);
-    setRiffArray(defaultRiffArray);
-
-    console.log(defaultRiffPositions);
-    console.log(defaultRiffArray);
-    console.log(chosenFretPosition);
+    setGeneratedRiff(tempRiff);
   }
 
   return (
@@ -64,13 +66,13 @@ function App() {
       <div id='tabs'>
         {strings.reverse().map((string, index) => {
           return(
-            <div className='row'>
-              {riffPosition.map( element => {
-                if(element[0] == index+1){
+            <div className='row' key={index}>
+              {generatedRiff.map( element => {
+                if(element['string'] === index+1){
                   return(
                     <div className='item'>
                       <span>
-                        {element[1]}
+                        {element['fret']}
                       </span>
                       <br/>
                     </div>
@@ -93,14 +95,15 @@ function App() {
             <div className='string'>
               {string.map((fret, key) => {
                 const position = key + 1;
+                const stringFret = `${index+1}-${position}`;
                 var selectedFret = false;
-                if(riffArray.includes(position+fret)){
+
+                if(generatedRiff.some(note => `${note['string']}-${note['fret']}` == stringFret)){
                   selectedFret = true;
-                } else {
-                  selectedFret = false;
                 }
+
                 return(
-                  <div className={`fret f${position} ${position+fret} ${selectedFret ? "active" : ""}`}>
+                  <div className={`fret f${position} ${selectedFret ? "active" : ""}`}>
                     <sup>{fret}</sup>
                   </div>
                 )
