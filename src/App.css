@@ -22,7 +22,7 @@
   position: relative;
 }
 .fret.active{
-  background: grey;
+  background: green;
 }
 
 .fret.f3:before,
