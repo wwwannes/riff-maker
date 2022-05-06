@@ -14,6 +14,59 @@ function App() {
   const $notes_e_2 = ["F4","F#4","G4","G#4","A4","A#4","B4","C5","C#5","D5","D#5","E5","F5","F#5","G5","G#5","A5","A#5","B5","C6","C#6","D6","D#6","E6"];
   const strings = [$notes_e_2,$notes_b,$notes_g,$notes_d,$notes_a,$notes_e];
 
+  const $_circle_of_fifths = ["C", "G", "D", "A", "E", "B", "F#", "C#", "G#", "D#", "A#", "F"];
+  const $_circle_of_fifths_extended = $_circle_of_fifths.concat($_circle_of_fifths.concat($_circle_of_fifths)); /* Copy so that negative index will also have results */
+  var $_notes_of_scale = [];
+  const [selectedKey, setSelectedKey] = useState("");
+  const [selectedScale, setSelectedScale] = useState("");
+
+  /* https://www.all-guitar-chords.com/circle-of-fifths */
+  const getAvailableNotes = (keyNote, type) => {
+    var $_main_pos, $_tempArr1, $_tempArr2, $_tempArrCombined;
+
+    switch (type) {
+      case "lydian":
+        $_main_pos = $_circle_of_fifths.length + $_circle_of_fifths.indexOf(keyNote);
+        break;
+      case "ionian":
+        $_main_pos = $_circle_of_fifths.length + $_circle_of_fifths.indexOf(keyNote) - 1;
+        break;
+      case "mixolydian":
+        $_main_pos = $_circle_of_fifths.length + $_circle_of_fifths.indexOf(keyNote) - 2;
+        break;
+    case "dorian":
+        $_main_pos = $_circle_of_fifths.length + $_circle_of_fifths.indexOf(keyNote) - 3;
+        break;
+    case "aeolian":
+        $_main_pos = $_circle_of_fifths.length + $_circle_of_fifths.indexOf(keyNote) - 4;
+        break;
+    case "phrygian":
+        $_main_pos = $_circle_of_fifths.length + $_circle_of_fifths.indexOf(keyNote) - 5;
+        break;
+    case "locrian":
+        $_main_pos = $_circle_of_fifths.length + $_circle_of_fifths.indexOf(keyNote) - 6;
+        break;
+      default:
+        $_main_pos = $_circle_of_fifths.length + $_circle_of_fifths.indexOf(keyNote);
+        break;
+    }
+
+    $_tempArr1 = $_circle_of_fifths_extended.splice($_main_pos, $_circle_of_fifths.length);
+    $_tempArr2 = $_circle_of_fifths_extended.splice(0, $_main_pos);
+    $_tempArrCombined = $_tempArr1.concat($_tempArr2);
+
+    $_notes_of_scale = $_tempArrCombined.splice(0, 7);
+
+    console.log($_notes_of_scale);
+  }
+
+  useEffect(() => {
+    console.log(selectedKey, selectedScale);
+    if(selectedKey !== "" && selectedScale !== ""){
+      getAvailableNotes(selectedKey, selectedScale);
+    }
+  }, [selectedKey, selectedScale]);
+
   const totalFrets = 23;
   const totalStrings = 5;
   const $minRiffLength = 4;
@@ -34,7 +87,7 @@ function App() {
     const now = Tone.now();
     
     for(var i = 0; i < generatedRiff.length; i++){
-      latestTempoPauze = latestTempoPauze + .5;
+      latestTempoPauze = latestTempoPauze + .35;
       synth.triggerAttackRelease(generatedRiff[i]["note"],"4n", now + latestTempoPauze);
     }
   }
@@ -123,13 +176,11 @@ function App() {
 
                 if(generatedRiff.some(note => `${note['string']}-${note['fret']}` === stringFret)){
                   selectedFret = true;
-                  //selectedTotalFrets ++;
                 }
 
                 return(
                   <div 
                     className={`fret f${position} ${selectedFret ? "active" : ""}`}
-                    /*style={{ backgroundColor: selectedFret ? `rgba(23, 142, 88, ${(selectedTotalFrets *  (100/$randomRiffLength))/100})` : ''}}*/
                   >
                     <sup>{fret}</sup>
                   </div>
@@ -139,6 +190,25 @@ function App() {
           )
         })}
       </div>
+
+      <select onChange={(e) => setSelectedKey(e.target.value)}>
+        <option value="">Select the requested key.</option>
+        {$_circle_of_fifths.sort().map((e, i) => {
+          return(
+            <option value={e}>In the key of {e}</option>
+          )
+        })}
+      </select>
+      <select onChange={(e) => setSelectedScale(e.target.value)}>
+        <option value="">Select the requested scale.</option>
+        <option value="lydian">Lydian scale</option>
+        <option value="ionian">Ionian scale</option>
+        <option value="mixolydian">Mixolydian scale</option>
+        <option value="dorian">Dorian scale</option>
+        <option value="aeolian">Aeolian scale</option>
+        <option value="phrygian">Phrygian scale</option>
+        <option value="locrian">Locrian scale</option>
+      </select>
       <button onClick={() => generateRiff()}>Generate Riff</button>
       <button onClick={() => playRiff()}>Replay Riff</button>
     </div>
